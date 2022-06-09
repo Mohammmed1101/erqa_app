@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-9+a+1%p$chdf=ce!4b-a=q0_p2l&pvw-o(c&v^*@z0(0ee6l0a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1']
 
 # Application definition
 
@@ -81,11 +80,11 @@ WSGI_APPLICATION = 'erqaApp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': 'erqa_app',
-        # 'USER' : 'postgres',
-        # 'PASSWORD' : '123456',
-        # 'HOST' : 'localhost',
-        # 'PORT' : '5432'
+        'NAME': 'erqa_app',
+        'USER' : 'postgres',
+        'PASSWORD' : '123456',
+        'HOST' : 'localhost',
+        'PORT' : '5432'
     }
 }
 
