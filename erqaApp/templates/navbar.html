@@ -1,0 +1,37 @@
+
+{% load static %}
+
+<!-- <img style="max-width: 200px" src="{% static 'images/logo.png' %}"> -->
+<!--  putting this makes django looks into our static -->
+<!-- <img src="{% static 'images/logo.png' %}" > -->
+<!--  Remember if you want to use cots twice make sure to 
+use one as cots '' and the other one as doublr cots "" -->
+
+
+ <!-- Header Section -->
+ <header class="header">
+    <div class="container container--narrow">
+      <a href=" " class="header__logo">
+        <img src=" " alt="" />
+      </a>
+      <nav class="header__nav">
+        <input type="checkbox" id="responsive-menu" />
+        <label for="responsive-menu" class="toggle-menu">
+          <span>Menu</span>
+          <div class="toggle-menu__lines"></div>
+        </label>
+        <ul class="header__menu">
+          <li class="header__menuItem"><a href=" "> Books </a></li>
+          <li class="header__menuItem"><a href=" ">Inbox</a></li>
+          <li class="header__menuItem"><a href=" "> Profile </a></li>
+
+          {%  if request.user.is_authenticated %}
+          <li class="header__menuItem"><a href=" " class="btn btn--sub">Add Book</a></li>
+          <li class="header__menuItem"><a href=" {% url 'logout' %}" class="btn btn--sub">Logout</a></li>
+          {% else %}
+          <li class="header__menuItem"><a href=" {% url 'login' %}" class="btn btn--sub">Login/Sign Up</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>

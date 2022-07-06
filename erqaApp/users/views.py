@@ -1,15 +1,24 @@
+from email import message
+from urllib import request
+from urllib.request import Request
 import django
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from .forms import SignupForm
 #####################
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.translation import ugettext
-from rest_framework import fields, models, serializers, viewsets
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm
+#from django.utils.translation import ugettext
+#from rest_framework import fields, serializers, viewsets
+from .models import Profile
+from django.contrib.auth.models import User
+from django.contrib import messages
 
- # Create your views here.
+
+# Create your views here.
 # class UserSeriaalizer(serializers.ModelSerializer):
 #     pass
 # def signup(request):
@@ -44,8 +53,10 @@ from rest_framework import fields, models, serializers, viewsets
 #         return _("Your password should be alphanumeric.")
 
 
-MIN_LENGTH = 8
+# we should add decorators above each view that requires sign in 
+# such as adding books and so on
 
+'''MIN_LENGTH = 8
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -84,12 +95,12 @@ class UserSerializer(serializers.ModelSerializer):
      user.set_password(validated_data["password"])
      user.save()
 
-     return user
+     return user   
 
 class UserViewSet(viewsets.ModelViewSet):
 
-   queryset = User.objects.all()
-   serializer_class = UserSerializer
+   queryset = User.objects.all()'''
+   #serializer_class = UserSerializer
 
 ######################################
 
@@ -104,3 +115,76 @@ class UserViewSet(viewsets.ModelViewSet):
 #     if not any(char in special_characters for char in password):
 #         raise ValidationError(ugettext('Password must contain at least %(min_length)d special character.') % {'min_length': min_length})
 
+
+def signup(request):
+  return render(request, 'users/signup.html')
+
+def loginUser(request):
+  # to send the user to the main page after logging in
+  page = 'login'
+
+  if request.user.is_authenticated:
+    return redirect('Profile')
+
+
+  if request.method == 'POST':
+    username = request.POST['username']
+    password = request.POST['password']
+
+    try:
+      user = User.objects.get(username=username)
+    except:
+      messages.error(request, ' Username does not exist ')
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        return redirect('Profile')
+    else:
+      messages.error(request,' Username or password in not correct ')
+
+  return render(request, 'users/login_register.html')
+
+
+
+def logoutUser(request):
+  logout(request)
+  messages.error(request, ' User logged out successfully ')
+
+  return redirect('login')
+
+
+
+def signUpUser(request):
+  page = 'signup'
+
+  #We are using Django built in registration forms
+  form = SignupForm()
+
+  if request.method == 'POST':
+    form = SignupForm(request.POST)
+    if form.is_valid():
+      user = form.save(commit=False)
+      user.username = user.username.lower()
+      user.save()
+
+  #Success flash message 
+      messages.success(request, ' Account successfully created ! ')
+
+  #redirecting the user to profiles page after sign up
+      login(request, user)
+      return redirect('Profile')
+    else:   #Error flash message 
+      messages.error(request, ' An error accurred while signing up! ')
+
+  context = {'page' : page, 'form': form}
+  return render(request, 'users/login_register.html', context)
+
+
+
+def profile(request):
+  users = User.objects.all()
+  profiles = Profile.objects.all()
+  context = {'profiles' : profiles , 'users': users } #in the '' is the name usen in Jinja
+  return render(request, 'users/profile.html', context)
