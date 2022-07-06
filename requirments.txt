@@ -3,3 +3,4 @@ psycopg2
 djangorestframework
 Markdown
 django-cors-headers
+pillow

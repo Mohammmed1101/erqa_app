@@ -1,20 +1,24 @@
+from email import message
+from urllib import request
 from urllib.request import Request
 import django
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from .forms import SignupForm
 #####################
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm
 #from django.utils.translation import ugettext
-from rest_framework import fields, serializers, viewsets
+#from rest_framework import fields, serializers, viewsets
 from .models import Profile
 from django.contrib.auth.models import User
 from django.contrib import messages
 
-# Create your views here.
+
+'''# Create your views here.
 # class UserSeriaalizer(serializers.ModelSerializer):
 #     pass
 # def signup(request):
@@ -109,7 +113,7 @@ class UserViewSet(viewsets.ModelViewSet):
 #     if not any(char.isalpha() for char in password):
 #         raise ValidationError(ugettext('Password must contain at least %(min_length)d letter.') % {'min_length': min_length})
 #     if not any(char in special_characters for char in password):
-#         raise ValidationError(ugettext('Password must contain at least %(min_length)d special character.') % {'min_length': min_length})
+#         raise ValidationError(ugettext('Password must contain at least %(min_length)d special character.') % {'min_length': min_length})'''
 
 
 def signup(request):
@@ -120,7 +124,7 @@ def loginUser(request):
   page = 'login'
 
   if request.user.is_authenticated:
-    return render(request, 'users/profile.html')
+    return redirect('Profile')
 
 
   if request.method == 'POST':
@@ -136,11 +140,12 @@ def loginUser(request):
 
     if user is not None:
         login(request, user)
-        return render(request, 'users/profile.html')
+        return redirect('Profile')
     else:
       messages.error(request,' Username or password in not correct ')
 
   return render(request, 'users/login_register.html')
+
 
 
 def logoutUser(request):
@@ -149,10 +154,33 @@ def logoutUser(request):
 
   return redirect('login')
 
+
+
 def signUpUser(request):
   page = 'signup'
-  context = {'page' : page}
+
+  #We are using Django built in registration forms
+  form = SignupForm()
+
+  if request.method == 'POST':
+    form = SignupForm(request.POST)
+    if form.is_valid():
+      user = form.save(commit=False)
+      user.username = user.username.lower()
+      user.save()
+
+  #Success flash message 
+      messages.success(request, ' Account successfully created ! ')
+
+  #redirecting the user to profiles page after sign up
+      login(request, user)
+      return redirect('Profile')
+    else:   #Error flash message 
+      messages.error(request, ' An error accurred while signing up! ')
+
+  context = {'page' : page, 'form': form}
   return render(request, 'users/login_register.html', context)
+
 
 
 def profile(request):
