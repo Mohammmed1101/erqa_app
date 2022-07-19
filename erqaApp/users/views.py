@@ -16,6 +16,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Profile
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -119,6 +121,7 @@ class UserViewSet(viewsets.ModelViewSet):
 def signup(request):
   return render(request, 'users/signup.html')
 
+@csrf_exempt
 def loginUser(request):
   # to send the user to the main page after logging in
   page = 'login'
@@ -128,8 +131,8 @@ def loginUser(request):
 
 
   if request.method == 'POST':
-    username = request.POST['username']
-    password = request.POST['password']
+    username = request.POST.get('username')
+    password = request.POST.get('password')
 
     try:
       user = User.objects.get(username=username)
@@ -155,7 +158,7 @@ def logoutUser(request):
   return redirect('login')
 
 
-
+@csrf_exempt
 def signUpUser(request):
   page = 'signup'
 
